@@ -26,7 +26,7 @@ The project consists of the following key files:
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone <https://github.com/lakindudev/user_managemen_system.git>
 cd user-management-service
 ```
 
@@ -91,9 +91,9 @@ The service exposes the following REST endpoints under the base path /users:
 - Request Body:
 ```json
 {
-    "username": "string",
-    "email": "string",
-    "age": 0
+    "username": "",
+    "email": "",
+    "age": 
 }
 ```
 
@@ -139,9 +139,9 @@ curl http://localhost:8080/users?username=john
 - Method: PUT /users/{id}
 ```bash
 Request Body:{
-    "username": "string",
-    "email": "string",
-    "age": integer
+    "username": "",
+    "email": "",
+    "age": 
 }
 ```
 
