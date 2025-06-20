@@ -1,12 +1,13 @@
+import user_management.database;
+
 import ballerina/http;
 import ballerina/lang.value;
-import user_management.database;
 import ballerina/sql;
 
 // Define an HTTP service listening on port 8080
 service / on new http:Listener(8080) {
 
-    #  Handles POST requests to create a new user in the database
+    # Handles POST requests to create a new user in the database
     # + caller - The HTTP caller to send the response
     # + req - The HTTP request containing user data in JSON format
     # + return - An error if the operation fails, otherwise nil
@@ -15,15 +16,15 @@ service / on new http:Listener(8080) {
         // Extract username, email, and age from the payload, ensuring type safety
         string username = value:toJsonString(check payload.username);
         string email = value:toJsonString(check payload.email);
-        int age = <int> check payload.age;
+        int age = <int>check payload.age;
 
         // Insert the user into the database using the insertUser function
-        sql:ExecutionResult _ =  check database:insertUser(username, email, age);
+        sql:ExecutionResult _ = check database:insertUser(username, email, age);
 
         http:Response res = new;
         res.statusCode = http:STATUS_CREATED;
         // Set response payload with a success message and the created user data
-        res.setPayload({ message: "User created", user: payload });
+        res.setPayload({message: "User created", user: payload});
         check caller->respond(res);
     }
 
@@ -42,7 +43,7 @@ service / on new http:Listener(8080) {
             http:Response res = new;
             // Set response payload with an error message
             res.statusCode = http:STATUS_NOT_FOUND;
-            res.setPayload({ message: "User not found" });
+            res.setPayload({message: "User not found"});
             check caller->respond(res);
         }
     }
@@ -67,16 +68,25 @@ service / on new http:Listener(8080) {
     resource function put users/[int id](http:Caller caller, http:Request req) returns error? {
         json payload = check req.getJsonPayload();
         // Extract username, email, and age from the payload, ensuring type safety
-        string name = <string> check payload.username;
-        string email = <string> check payload.email;
-        int age = <int> check payload.age;
+        string name = <string>check payload.username;
+        string email = <string>check payload.email;
+        int age = <int>check payload.age;
 
         // Update the user in the database using the updateUser function
-        sql:ExecutionResult _ = check database:updateUser(id, name, email, age);
+        sql:ExecutionResult result = check database:updateUser(id, name, email, age);
 
         http:Response res = new;
-        res.setPayload({ message: "User updated", user: payload });
-        check caller->respond(res);
+
+        // Check if any rows were affected (i.e., user was updated)
+        if result.affectedRowCount != 0 {
+            res.setPayload({message: "User updated successfully", user: payload});
+            check caller->respond(res);
+        } else {
+            // No user found with the given ID
+            res.statusCode = http:STATUS_NOT_FOUND;
+            res.setPayload({message: "No user found with the provided ID", id: id});
+            check caller->respond(res);
+        }
     }
 
     # Handles DELETE requests to remove a user by their ID
@@ -85,9 +95,17 @@ service / on new http:Listener(8080) {
     # + return - An error if the operation fails, otherwise nil
     resource function delete users/[int id](http:Caller caller) returns error? {
         // Delete the user from the database using the deleteUser function
-        sql:ExecutionResult _ = check database:deleteUser(id);
+        sql:ExecutionResult result = check database:deleteUser(id);
         http:Response res = new;
-        res.setPayload({ message: "User deleted", id: id });
-        check caller->respond(res);
+        // Check if any rows were affected (i.e., user was deleted)
+        if result.affectedRowCount != 0 {
+            res.setPayload({message: "User deleted successfully", id: id});
+            check caller->respond(res);
+        } else {
+            // No user found with the given ID
+            res.statusCode = http:STATUS_NOT_FOUND;
+            res.setPayload({message: "No user found with the provided ID", id: id});
+            check caller->respond(res);
+        }
     }
 }
