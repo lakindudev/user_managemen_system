@@ -1,18 +1,9 @@
-// import ballerina/sql;
 import ballerinax/mysql;
-
-// configurable string dbHost = ;
-// configurable int dbPort = ?;
-// configurable string dbUser = ?;
-// configurable string dbPassword = ?;
-// configurable string dbName = ?;
-
-
 
 # Database Client Configuration.
 configurable DatabaseConfig dbConfig = ?;
 
-
+# Initializes the MySQL database client
 public mysql:Client dbClient = check new(
     host = dbConfig.dbHost,
     port = dbConfig.dbPort,

@@ -1,14 +1,20 @@
 import ballerina/sql;
 
+# Inserts a new user into the database.
+#
+# + name - The username of the user to be inserted 
+# + email - The email address of the user 
+# + age - The age of the user
+# + return - The result of the SQL execution or an error if the operation fails
 public function insertUser(string name, string email, int age) returns sql:ExecutionResult|error {
     sql:ParameterizedQuery query = addUserQuery(name, email, age);
     return dbClient->execute(query);
 }
 
-# Description.
+# Retrieves a user from the database by their ID.
 #
-# + id - parameter description
-# + return - return value description
+# + id - The unique identifier of the user to retrieve
+# + return - An array of user records (expected to contain one user) or an error if the query fails
 public function getUserById(int id) returns user[]|error {
     sql:ParameterizedQuery query = getUserByIdQuery(id);
     stream<user, sql:Error?> resultStream = dbClient->query(query);
@@ -19,10 +25,10 @@ public function getUserById(int id) returns user[]|error {
     return users;
 }
 
-# Description.
+# Searches for users in the database, optionally filtering by username.
 #
-# + username - parameter description
-# + return - return value description
+# + username - An optional username to filter the search; if null, all users are returned
+# + return - An array of user records matching the search criteria or an error if the query fails
 public function searchUsers(string? username) returns user[]|error {
     sql:ParameterizedQuery query = searchUsersQuery(username);
 
@@ -34,22 +40,22 @@ public function searchUsers(string? username) returns user[]|error {
     return users;
 }
 
-# Description.
+# Updates an existing user's details in the database.
 #
-# + id - parameter description  
-# + name - parameter description  
-# + email - parameter description  
-# + age - parameter description
-# + return - return value description
+# + id - The unique identifier of the user to update
+# + name - The updated username
+# + email - The updated email address
+# + age - The updated age
+# + return - The result of the SQL execution or an error if the operation fails
 public function updateUser(int id, string name, string email, int age) returns sql:ExecutionResult|error {
     sql:ParameterizedQuery query = updateUserQuery(id,name,email,age);
     return dbClient->execute(query);
 }
 
-# Description.
+#  Deletes a user from the database by their ID.
 #
-# + id - parameter description
-# + return - return value description
+# + id - The unique identifier of the user to delete
+# + return - he result of the SQL execution or an error if the operation fails
 public function deleteUser(int id) returns sql:ExecutionResult|error {
     sql:ParameterizedQuery query = deleteUserQuery(id);
     return dbClient->execute(query);
